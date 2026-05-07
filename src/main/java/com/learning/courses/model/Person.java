@@ -24,6 +24,9 @@ public class Person {
   @SequenceGenerator(name = "person_id_seq", sequenceName = "person_id_seq", allocationSize = 1)
   private Long id;
 
+  @OneToMany
+  private List<Paper> papers;
+
   private String firstName;
 
   private String lastName;
