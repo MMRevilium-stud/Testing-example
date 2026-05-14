@@ -1,8 +1,6 @@
 package com.learning.courses.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import lombok.Builder;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +12,12 @@ import lombok.Setter;
 public class Paper {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "person_id")
+    private Person tutor;
 
     private String authors;
 

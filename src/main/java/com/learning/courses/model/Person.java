@@ -24,7 +24,7 @@ public class Person {
   @SequenceGenerator(name = "person_id_seq", sequenceName = "person_id_seq", allocationSize = 1)
   private Long id;
 
-  @OneToMany
+  @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Paper> papers;
 
   private String firstName;
@@ -44,5 +44,15 @@ public class Person {
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "tutor")
   private List<Course> tutoringCourses;
+
+  public void addPaper(Paper paper) {
+    papers.add(paper);
+    paper.setTutor(this);
+  }
+
+  public void removePaper(Paper paper) {
+    papers.remove(paper);
+    paper.setTutor(null);
+  }
 
 }
