@@ -1,6 +1,7 @@
 package com.learning.courses.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,10 +20,13 @@ public class Paper {
     @JoinColumn(name = "person_id")
     private Person tutor;
 
+    @NotBlank
     private String authors;
 
+    @NotBlank
     private String ISBN;
 
+    @NotBlank
     private String topic;
 
 

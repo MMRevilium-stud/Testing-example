@@ -59,4 +59,13 @@ class PersonController {
   ) {
     return personService.removePaper(personId, paperId);
   }
+
+  @GetMapping("/{personId}/papers/{paperId}")
+  @Operation(summary = "Get paper from person")
+  public PaperDTO getPaperFromPerson(
+          @PathVariable Long personId,
+          @PathVariable Long paperId
+  ) {
+    return personService.getPaperFromPerson(personId, paperId);
+  }
 }

@@ -4,6 +4,7 @@ import com.learning.courses.dto.CreatePersonDTO;
 import com.learning.courses.dto.PaperDTO;
 import com.learning.courses.dto.PersonDTO;
 import com.learning.courses.exception.EntityNotFoundException;
+import com.learning.courses.mapper.PaperMapper;
 import com.learning.courses.mapper.PersonMapper;
 import com.learning.courses.model.Paper;
 import com.learning.courses.model.Person;
@@ -21,6 +22,7 @@ public class PersonService {
 
   private final PersonRepository personRepository;
   private final PersonMapper personMapper;
+  private final PaperMapper paperMapper;
 
   @Transactional
   public Long createPerson(CreatePersonDTO createPersonDTO) {
@@ -92,6 +94,21 @@ public class PersonService {
     personRepository.save(person);
 
     return personMapper.toDTO(person);
+  }
+
+  @Transactional(readOnly = true)
+  public PaperDTO getPaperFromPerson(@NotNull @Positive Long personId,
+                                     @NotNull @Positive Long paperId) {
+
+    Person person = personRepository.findById(personId)
+            .orElseThrow(() -> new EntityNotFoundException(personId, Person.class.getSimpleName()));
+
+    Paper paper = person.getPapers().stream()
+            .filter(p -> p.getId().equals(paperId))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException(paperId, Paper.class.getSimpleName()));
+
+    return paperMapper.toDTO(paper);
   }
 
 }
