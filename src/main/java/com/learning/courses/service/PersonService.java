@@ -1,10 +1,14 @@
 package com.learning.courses.service;
 
 import com.learning.courses.dto.CreatePersonDTO;
+import com.learning.courses.dto.PaperDTO;
 import com.learning.courses.dto.PersonDTO;
 import com.learning.courses.exception.EntityNotFoundException;
+import com.learning.courses.mapper.PaperMapper;
 import com.learning.courses.mapper.PersonMapper;
+import com.learning.courses.model.Paper;
 import com.learning.courses.model.Person;
+import com.learning.courses.model.enums.Role;
 import com.learning.courses.repository.PersonRepository;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -18,6 +22,7 @@ public class PersonService {
 
   private final PersonRepository personRepository;
   private final PersonMapper personMapper;
+  private final PaperMapper paperMapper;
 
   @Transactional
   public Long createPerson(CreatePersonDTO createPersonDTO) {
@@ -48,6 +53,62 @@ public class PersonService {
     person.setIdentityNumber(updatedPerson.getIdentityNumber());
     person = personRepository.save(person);
     return personMapper.toDTO(person);
+  }
+
+  @Transactional
+  public PersonDTO addPaper(Long personId, PaperDTO paperDTO) {
+
+    Person person = personRepository.findById(personId)
+            .orElseThrow(() -> new RuntimeException("Person not found"));
+
+    if (person.getRole() != Role.TUTOR) {
+      throw new IllegalStateException("Only tutors can have papers");
+    }
+
+    Paper paper = new Paper();
+    paper.setAuthors(paperDTO.getAuthors());
+    paper.setISBN(paperDTO.getISBN());
+    paper.setTopic(paperDTO.getTopic());
+
+    person.addPaper(paper);
+
+    personRepository.save(person);
+
+    return personMapper.toDTO(person);
+  }
+
+  @Transactional
+  public PersonDTO removePaper(Long personId, Long paperId) {
+
+    Person person = personRepository.findById(personId)
+            .orElseThrow(() -> new RuntimeException("Person not found"));
+
+    Paper paperToRemove = person.getPapers()
+            .stream()
+            .filter(paper -> paper.getId().equals(paperId))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Paper not found"));
+
+    person.removePaper(paperToRemove);
+
+    personRepository.save(person);
+
+    return personMapper.toDTO(person);
+  }
+
+  @Transactional(readOnly = true)
+  public PaperDTO getPaperFromPerson(@NotNull @Positive Long personId,
+                                     @NotNull @Positive Long paperId) {
+
+    Person person = personRepository.findById(personId)
+            .orElseThrow(() -> new EntityNotFoundException(personId, Person.class.getSimpleName()));
+
+    Paper paper = person.getPapers().stream()
+            .filter(p -> p.getId().equals(paperId))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException(paperId, Paper.class.getSimpleName()));
+
+    return paperMapper.toDTO(paper);
   }
 
 }
